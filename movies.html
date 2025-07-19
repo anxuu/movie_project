@@ -29,24 +29,29 @@
     </style>
 
     <script>
-        let moviesdata0;
+        let allFetchedMovies;
+        let shallowmovies;
         let movieToUpdateId = null;
 
 
-        function Fetchmovies() {
+        function fetchMoviesFromAPI() {
+            console.log('...fetching');
+
             fetch('https://api.themoviedb.org/3/movie/popular?api_key=9eed8f4b212b01f1d198c16561719fa2&page=3')
                 .then(response => {
                     return response.json();
                 }).then(response => {
 
 
-                    moviesdata0 = response.results;
-                    console.log(moviesdata0);
+                    allFetchedMovies = response.results;
+                    shallowmovies = [...allFetchedMovies]
+                    rendermovies(shallowmovies);
+                    console.log('fetched in shallow movies');
 
-                    rendermovies(moviesdata0)
 
                 }).catch(error => {
                     console.log(error);
+                    document.querySelector('section').innerHTML = "<p>Failed to load movies. Try again.</p>";
 
                 });
 
@@ -99,8 +104,8 @@
                 id: Math.floor(1000000 + Math.random() * 9000000)
             }
 
-            moviesdata0.unshift(newobject);
-            rendermovies(moviesdata0)
+            shallowmovies.unshift(newobject);
+            rendermovies(shallowmovies);
 
             document.getElementById('movietitle').value = '';
             document.getElementById('moviedescription').value = '';
@@ -111,12 +116,13 @@
 
         function Deletemovie(moviesdataid) {
 
+            let index = shallowmovies.findIndex(item => item.id === moviesdataid);
 
-            let index = moviesdata0.findIndex(item => item.id === moviesdataid);
 
+            shallowmovies.splice(index, 1);
 
-            moviesdata0.splice(index, 1);
-            rendermovies(moviesdata0);
+            rendermovies(shallowmovies);
+
         }
 
 
@@ -124,11 +130,10 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
 
+            let edititem = shallowmovies.find(item => moviesdataid === item.id);
 
-            let edititem = moviesdata0.find(item => moviesdataid === item.id);
 
-
-            movieToUpdateId = moviesdataid;
+            movieToUpdateId = moviesdataid; // required for final update
 
 
             document.getElementById('movietitle').value = edititem.title;
@@ -140,21 +145,21 @@
 
         function Finalupdate() {
 
-            let index = moviesdata0.findIndex(item => item.id === movieToUpdateId);
+            let index = shallowmovies.findIndex(item => item.id === movieToUpdateId);
 
             let edititemtitle = document.getElementById('movietitle').value;
             let edititemoverview = document.getElementById('moviedescription').value;
             let edititemvote_average = document.getElementById('movierating').value;
 
             if (index !== -1) {
-                moviesdata0[index].title = edititemtitle;
-                moviesdata0[index].overview = edititemoverview;
-                moviesdata0[index].vote_average = edititemvote_average;
+                shallowmovies[index].title = edititemtitle;
+                shallowmovies[index].overview = edititemoverview;
+                shallowmovies[index].vote_average = edititemvote_average;
 
             }
 
 
-            rendermovies(moviesdata0);
+            rendermovies(shallowmovies);
 
             document.getElementById('movietitle').value = '';
             document.getElementById('moviedescription').value = '';
@@ -169,10 +174,11 @@
             let input = document.getElementById('searchinput').value.toLowerCase();
 
             if (input === '') {
-                rendermovies(moviesdata0);
+                rendermovies(shallowmovies);
                 return;
             }
-            let moviesinc = moviesdata0.filter(item => item.title.toLowerCase().includes(input));
+            let moviesinc = shallowmovies.filter(item => item.title.toLowerCase().includes(input) ||
+                item.overview.toLowerCase().includes(input));
 
             rendermovies(moviesinc);
 
@@ -181,11 +187,10 @@
 
         function Filterbyrating() {
             let givenrating = document.getElementById('rating-slider').value;
-            console.log(givenrating);
 
             document.getElementById('display-rating').innerHTML = `[${givenrating}]`
 
-            let filtereddata = moviesdata0.filter(item => item.vote_average >= givenrating);
+            let filtereddata = shallowmovies.filter(item => item.vote_average >= givenrating);
 
             rendermovies(filtereddata);
 
@@ -197,7 +202,7 @@
 
 <body>
     <h2>Recommended Movies</h2>
-    <button onclick="Fetchmovies()">Load Full List</button>
+    <button onclick="fetchMoviesFromAPI()">Load Full List</button>
     <div style="margin-top: 10px;">
         <input type="text" id="searchinput" placeholder="Search by Movie title">
         <button onclick="Searchinput()">Search</button>
