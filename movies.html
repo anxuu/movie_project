@@ -1,1 +1,245 @@
-Started Code Today for project of Movies ( 19 july) .
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies</title>
+    <style>
+        .section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .movieblock {
+            flex-basis: 300px;
+        }
+
+        .imgdiv {
+            height: 200px;
+            width: 300px;
+        }
+
+        .imginside {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+    </style>
+
+    <script>
+        let moviesdata0;
+        let movieToUpdateId = null;
+
+
+        function Fetchmovies() {
+            fetch('https://api.themoviedb.org/3/movie/popular?api_key=9eed8f4b212b01f1d198c16561719fa2&page=3')
+                .then(response => {
+                    return response.json();
+                }).then(response => {
+
+
+                    moviesdata0 = response.results;
+                    console.log(moviesdata0);
+
+                    rendermovies(moviesdata0)
+
+                }).catch(error => {
+                    console.log(error);
+
+                });
+
+        }
+
+
+        function rendermovies(dataset) {
+            const moviesdisplay = document.querySelector('section');
+
+            moviesdisplay.innerHTML = '';
+
+            dataset.forEach(moviesdata => {
+                moviesdisplay.innerHTML += `<div class="movieblock">
+
+                                                <div class="imgdiv">
+                                                  <img src="https://image.tmdb.org/t/p/w500${moviesdata.poster_path}" alt="${moviesdata.title}" class="imginside">
+                                                </div>
+                                                <div class="movietitle"><b>${moviesdata.title}</b></div>
+
+                                                <div>Rating : <span>⭐ ${moviesdata.vote_average}</span></div>
+
+                                                <button onclick="Preupdate(${moviesdata.id})">Update movie</button>
+                                                 <button onclick="Deletemovie(${moviesdata.id})">delete movie</button>
+
+                                         <div class="Description">
+                                             <b>Description :</b> ${moviesdata.overview ? moviesdata.overview.slice(0, 90) + '...' : 'No description available'}
+                                         </div>
+
+                                          
+
+                                          </div>`
+            })
+        }
+
+
+        function Addnewvalue(event) {
+
+            event.preventDefault();
+
+
+            let movietitle = document.getElementById('movietitle').value;
+            let moviedescription = document.getElementById('moviedescription').value;
+            let movierating = document.getElementById('movierating').value;
+
+
+            let newobject = {
+                title: movietitle,
+                overview: moviedescription,
+                vote_average: movierating,
+                id: Math.floor(1000000 + Math.random() * 9000000)
+            }
+
+            moviesdata0.unshift(newobject);
+            rendermovies(moviesdata0)
+
+            document.getElementById('movietitle').value = '';
+            document.getElementById('moviedescription').value = '';
+            document.getElementById('movierating').value = '';
+
+        }
+
+
+        function Deletemovie(moviesdataid) {
+
+
+            let index = moviesdata0.findIndex(item => item.id === moviesdataid);
+
+
+            moviesdata0.splice(index, 1);
+            rendermovies(moviesdata0);
+        }
+
+
+        function Preupdate(moviesdataid) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+
+
+            let edititem = moviesdata0.find(item => moviesdataid === item.id);
+
+
+            movieToUpdateId = moviesdataid;
+
+
+            document.getElementById('movietitle').value = edititem.title;
+            document.getElementById('moviedescription').value = edititem.overview;
+            document.getElementById('movierating').value = edititem.vote_average;
+
+        }
+
+
+        function Finalupdate() {
+
+            let index = moviesdata0.findIndex(item => item.id === movieToUpdateId);
+
+            let edititemtitle = document.getElementById('movietitle').value;
+            let edititemoverview = document.getElementById('moviedescription').value;
+            let edititemvote_average = document.getElementById('movierating').value;
+
+            if (index !== -1) {
+                moviesdata0[index].title = edititemtitle;
+                moviesdata0[index].overview = edititemoverview;
+                moviesdata0[index].vote_average = edititemvote_average;
+
+            }
+
+
+            rendermovies(moviesdata0);
+
+            document.getElementById('movietitle').value = '';
+            document.getElementById('moviedescription').value = '';
+            document.getElementById('movierating').value = '';
+
+
+
+        }
+
+
+        function Searchinput() {
+            let input = document.getElementById('searchinput').value.toLowerCase();
+
+            if (input === '') {
+                rendermovies(moviesdata0);
+                return;
+            }
+            let moviesinc = moviesdata0.filter(item => item.title.toLowerCase().includes(input));
+
+            rendermovies(moviesinc);
+
+        }
+
+
+        function Filterbyrating() {
+            let givenrating = document.getElementById('rating-slider').value;
+            console.log(givenrating);
+
+            document.getElementById('display-rating').innerHTML = `[${givenrating}]`
+
+            let filtereddata = moviesdata0.filter(item => item.vote_average >= givenrating);
+
+            rendermovies(filtereddata);
+
+        }
+
+    </script>
+
+</head>
+
+<body>
+    <h2>Recommended Movies</h2>
+    <button onclick="Fetchmovies()">Load Full List</button>
+    <div style="margin-top: 10px;">
+        <input type="text" id="searchinput" placeholder="Search by Movie title">
+        <button onclick="Searchinput()">Search</button>
+    </div>
+
+    <br>
+    <br>
+    <form onsubmit='Addnewvalue(event)' id="form-of-movie">
+
+        <div class="moviename">
+            <input type="text" id="movietitle" required>
+            <label for="">Enter Movie Title</label>
+        </div>
+
+        <div class="Description">
+            <input type="text" id="moviedescription" required>
+            <label for="">Enter Description </label>
+        </div>
+
+        <div class="Rating">
+            <input type="range" min="0" max="10" id="movierating">
+            <label for="">Select Rating</label>
+        </div>
+
+        <button id="btn" type="submit">ADD</button>
+        <button type="button" onclick="Finalupdate()" id="updatebtn">Update</button>
+
+    </form>
+
+    <div>
+        <input type="range" class="rating-slider" id="rating-slider" oninput="Filterbyrating()" value="2" min="2"
+            max="10" step="2">
+        <label for="">Filter by ratings</label>
+        <span id="display-rating">
+            <b>[2]</b>
+
+        </span>
+    </div>
+    <section class="section">
+
+
+    </section>
+</body>
+
+</html>

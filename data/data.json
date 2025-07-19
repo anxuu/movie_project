@@ -1,0 +1,50 @@
+[
+    {
+        "title": "Batman vs Superman",
+        "image": "Batmanvssuperman.png",
+        "rating": 4.5,
+        "platform": "Prime Video",
+        "trailer_button": "Play Trailer",
+        "description": "Superman faces Batman over a moral conflict."
+    },
+    {
+        "title": "Man of Steel",
+        "image": "manofsteel.png",
+        "rating": 4.3,
+        "platform": "Netflix",
+        "trailer_button": "Play Trailer",
+        "description": "Clark Kent learns about his origin and becomes Superman."
+    },
+    {
+        "title": "Wonder Woman",
+        "image": "wonderwoman.png",
+        "rating": 4.4,
+        "platform": "Zee5",
+        "trailer_button": "Play Trailer",
+        "description": "Diana, an Amazon warrior, steps into World War I."
+    },
+    {
+        "title": "Justice League",
+        "image": "justiceleague.png",
+        "rating": 3.9,
+        "platform": "JioCinema",
+        "trailer_button": "Play Trailer",
+        "description": "Heroes unite to stop a global threat."
+    },
+    {
+        "title": "Aquaman",
+        "image": "aquaman.png",
+        "rating": 4.2,
+        "platform": "Prime Video",
+        "trailer_button": "Play Trailer",
+        "description": "Arthur Curry claims his right to the throne of Atlantis."
+    },
+    {
+        "title": "The Flash",
+        "image": "flash.png",
+        "rating": 4.0,
+        "platform": "Netflix",
+        "trailer_button": "Play Trailer",
+        "description": "Barry Allen travels back in time and resets the universe."
+    }
+]
